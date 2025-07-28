@@ -12,8 +12,8 @@ const Slices = []const Slice;
 pub const command = struct {
     name: Slice, // Name of the command
     func: fnType, // Function to execute the command
-    req: Slices = &. {}, // Required options
-    opt: Slices = &. {}, // Optional options
+    req: Slices = &.{}, // Required options
+    opt: Slices = &.{}, // Optional options
     const fnType = *const fn ([]const option) bool;
 };
 
@@ -37,6 +37,32 @@ pub const Error = error {
     CommandExecutionFailed,
     TooManyCommands,
     TooManyOptions,
+};
+
+pub const Color = enum {
+    Reset,
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    White,
+
+    pub fn ansi_code(self: Color) []const u8 {
+        return switch (self) {
+            .Reset => "\x1b[0m",
+            .Black => "\x1b[30m",
+            .Red => "\x1b[31m",
+            .Green => "\x1b[32m",
+            .Yellow => "\x1b[33m",
+            .Blue => "\x1b[34m",
+            .Magenta => "\x1b[35m",
+            .Cyan => "\x1b[36m",
+            .White => "\x1b[37m",
+        };
+    }
 };
 
 /// Start the CLI application
@@ -65,7 +91,7 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
     const stdout = std.io.getStdOut().writer();
 
     if (args.len < 2) {
-        if (debug) stdout.print("No command provided by used!\n", .{}) catch {};
+        if (debug) stdout.print("No command provided by user!\n", .{}) catch {};
         return Error.NoArgsProvided;
     }
 
@@ -83,7 +109,7 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
 
     // If no matching command is found, return an error
     if (detected_command == null) {
-    if (debug) stdout.print("Unknown command: {s}\n", .{command_name}) catch {};
+        if (debug) stdout.print("Unknown command: {s}\n", .{command_name}) catch {};
         return Error.UnknownCommand;
     }
 
@@ -180,5 +206,10 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
 
     // If execution reaches this point, the command was executed successfully
     if (debug) stdout.print("Command executed successfully: {s}\n", .{cmd.name}) catch {};
+}
+
+pub fn print_colored(color: Color, comptime fmt: []const u8, args: anytype) void {
+    const stdout = std.io.getStdOut().writer();
+    stdout.print("{s}" ++ fmt ++ "{s}", .{color.ansi_code()} ++ args ++ .{Color.Reset.ansi_code()}) catch {};
 }
 

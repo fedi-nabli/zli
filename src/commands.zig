@@ -5,8 +5,6 @@ pub const methods = struct {
     pub const commands = struct {
         // Handler for the "hello" command
         pub fn hello_fn(_options: []const cli.option) bool {
-            const stdout = std.io.getStdOut().writer();
-        
             const greeting: []const u8 = "Hello";
             var name: []const u8 = "World";
 
@@ -22,7 +20,9 @@ pub const methods = struct {
                 }
             }
 
-            stdout.print("{s}, {s}!\n", .{greeting, name}) catch {};
+            cli.print_colored(.Green, "{s}, ", .{greeting});
+            cli.print_colored(.Cyan, "{s}", .{name});
+            cli.print_colored(.Yellow, "!\n", .{});
             return true;
         }
 
