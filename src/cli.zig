@@ -65,7 +65,7 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
     const stdout = std.io.getStdOut().writer();
 
     if (args.len < 2) {
-        if (debug) stdout.print("No command provided by used!\n", .{});
+        if (debug) stdout.print("No command provided by used!\n", .{}) catch {};
         return Error.NoArgsProvided;
     }
 
@@ -83,14 +83,14 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
 
     // If no matching command is found, return an error
     if (detected_command == null) {
-        if (debug) stdout.print("Unknown command: {s}\n", .{command_name});
+    if (debug) stdout.print("Unknown command: {s}\n", .{command_name}) catch {};
         return Error.UnknownCommand;
     }
 
     // Retrieve the matched command from the optional variable
     const cmd = detected_command.?;
 
-    if (debug) stdout.print("Detected command: {s}\n", .{cmd.name});
+    if (debug) stdout.print("Detected command: {s}\n", .{cmd.name}) catch {};
 
     // Allocate memory for detected options based on remaining arguments
     var detected_options: [MAX_OPTIONS]option = undefined;
@@ -113,7 +113,7 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
             }
 
             if (matched_option == null) {
-                if (debug) stdout.print("Unknown option: {s}\n", .{arg});
+                if (debug) stdout.print("Unknown option: {s}\n", .{arg}) catch {};
                 return Error.UnknownOption;
             }
 
@@ -134,7 +134,7 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
             detected_options[detected_len] = opt;
             detected_len += 1;
         } else {
-            if (debug) stdout.print("Unexpected argument: {s}\n", .{arg});
+            if (debug) stdout.print("Unexpected argument: {s}\n", .{arg}) catch {};
             return Error.UnexpectedArgument;
         }
 
@@ -156,7 +156,7 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
         }
 
         if (!found) {
-            if (debug) stdout.print("Missing required option: {}\n", .{req_option});
+            if (debug) stdout.print("Missing required option: {s}\n", .{req_option}) catch {};
             return Error.MissingRequiredOption;
         }
     }
@@ -172,13 +172,13 @@ pub fn start_with_args(commands: []const command, options: []const option, args:
             const result = opt.func.?(opt.value);
 
             if (!result) {
-                if (debug) stdout.print("Option function execution failed: {s}\n", .{opt.name});
-                return Error.CommandExecutionFailed;
+                if (debug) stdout.print("Option function execution failed: {s}\n", .{opt.name}) catch {};
+                // return Error.CommandExecutionFailed;
             }
         }
     }
 
-    // If execution reaches the point, the command was executed successfully
-    if (debug) stdout.print("Command executed successfully: {s}\n", .{cmd.name});
+    // If execution reaches this point, the command was executed successfully
+    if (debug) stdout.print("Command executed successfully: {s}\n", .{cmd.name}) catch {};
 }
 

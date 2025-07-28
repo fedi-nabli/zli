@@ -6,26 +6,29 @@ pub const methods = struct {
         // Handler for the "hello" command
         pub fn hello_fn(_options: []const cli.option) bool {
             const stdout = std.io.getStdOut().writer();
-            stdout.print("Hello, ", .{});
+        
+            const greeting: []const u8 = "Hello";
+            var name: []const u8 = "World";
 
-            // Loop for a "name" option
+            // Extract options
             for (_options) |opt| {
+                // if (std.mem.eql(u8, opt.name, "greeting")) {
+                //    greeting = opt.value;
+                //} else
                 if (std.mem.eql(u8, opt.name, "name")) {
                     if (opt.value.len > 0) {
-                        stdout.print("{s}", .{opt.value});
-                    } else {
-                        stdout.print("World", .{});
+                        name = opt.value;
                     }
-                    break;
                 }
             }
 
-            stdout.print("!\n", .{});
+            stdout.print("{s}, {s}!\n", .{greeting, name}) catch {};
             return true;
         }
 
         // Handler for the help command
         pub fn help_fn(_: []const cli.option) bool {
+            const stdout = std.io.getStdOut().writer();
             stdout.print(
                 "Usage: zli <command> [options]\n" ++
                 "Commands:\n" ++
@@ -35,7 +38,7 @@ pub const methods = struct {
                 "Options for hello:\n" ++
                 "  -n, --name <value>     Name to greet\n"
                 , .{}
-            );
+            ) catch {};
             return true;
         }
     };
