@@ -41,6 +41,24 @@ pub const methods = struct {
             ) catch {};
             return true;
         }
+
+        // Spinner command example
+        pub fn long_running_command(_: []const cli.option) bool {
+            var spinner = cli.Spinner.init("Processing...") catch |err| {
+                std.debug.print("Failed to initialize spinner: {}\n", .{err});
+                return false;
+            };
+
+            // Simulate work
+            var i: usize = 0;
+            while (i < 50) : (i += 1) {
+                spinner.tick();
+                std.time.sleep(100 * std.time.ns_per_ms);
+            }
+
+            spinner.stop("Done processing!");
+            return true;
+        }
     };
 
     pub const options = struct {

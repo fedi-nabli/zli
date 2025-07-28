@@ -14,6 +14,10 @@ pub fn main() !void {
             .name = "help",
             .func = &cmd.methods.commands.help_fn,
         },
+        cli.command{
+            .name = "spinner",
+            .func = &cmd.methods.commands.long_running_command,
+        },
     };
 
     // Define available options
