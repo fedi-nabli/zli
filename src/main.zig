@@ -18,6 +18,10 @@ pub fn main() !void {
             .name = "spinner",
             .func = &cmd.methods.commands.long_running_command,
         },
+        cli.command{
+            .name = "progress",
+            .func = &cmd.methods.commands.progress_bar_fn,
+        },
     };
 
     // Define available options

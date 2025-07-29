@@ -59,6 +59,21 @@ pub const methods = struct {
             spinner.stop("Done processing!");
             return true;
         }
+
+        // progress bar example
+        pub fn progress_bar_fn(_: []const cli.option) bool {
+            var progress_bar = cli.ProgressBar.init(100, "Processing...", 100);
+
+            // Simulate work
+            var i: usize = 0;
+            while (i <= 100) : (i += 1) {
+                progress_bar.update(1);
+            std.time.sleep(100 * std.time.ns_per_ms);
+            }
+
+            progress_bar.stop();
+            return true;
+        }
     };
 
     pub const options = struct {

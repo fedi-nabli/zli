@@ -240,3 +240,51 @@ pub const Spinner = struct {
     }
 };
 
+pub const ProgressBar = struct {
+    total: usize,
+    current: usize = 0,
+    width: usize = 40,
+    message: []const u8,
+
+    pub fn init(total: usize, message: []const u8, width: ?usize) ProgressBar {
+        return ProgressBar {
+            .message = message,
+            .total = total,
+            .current = 0,
+            .width = width orelse 40,
+        };
+    }
+
+    pub fn update(self: *ProgressBar, step: usize) void {
+        const stdout = std.io.getStdOut().writer();
+        // Unicode block characters
+        const filled_block = "█";
+        const empty_block = "░";
+
+        self.current += step;
+        if (self.current > self.total) self.current = self.total;
+
+        const percent: f64 = @as(f64, @floatFromInt(self.current)) / @as(f64, @floatFromInt(self.total));
+        const filled: usize = @intFromFloat(percent * @as(f64, @floatFromInt(self.width)));
+
+        _ = stdout.print("\r{s} [", .{self.message}) catch {};
+
+        for (0..self.width) |i| {
+            if (i < filled) {
+                _ = stdout.print("{s}", .{filled_block}) catch {};
+            } else {
+                _ = stdout.print("{s}", .{empty_block}) catch {};
+            }
+        }
+
+        _ = stdout.print("] {d:3}%", .{@as(u8, @intFromFloat(percent * 100.0))}) catch {};
+    }
+
+    pub fn stop(self: *ProgressBar) void {
+        self.current = self.total;
+        self.update(0); // draw final bar
+        const stdout = std.io.getStdOut().writer();
+        _ = stdout.print("\n", .{}) catch {};
+    }
+};
+
